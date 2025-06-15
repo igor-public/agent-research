@@ -32,8 +32,18 @@ class Workflow:
         search_results = self.firecrawl.search_inventions(article_query, num_results=3)
 
         all_content = ""
-        for result in search_results.data:
-            url = result.get("url", "")
+        
+        for result in search_results:
+            #url = result.get("url", "")
+            
+            url = result.get("link", "") 
+        
+            print(f"🔗 Scraping URL: {url}")
+        
+            if not url or not url.startswith("http"):
+                print(f"[⚠️ Skipped] Invalid URL: {url}")
+                continue
+            
             scraped = self.firecrawl.scrape_invention_page(url)
             if scraped:
                 all_content += scraped.markdown[:1500] + "\n\n"
@@ -88,7 +98,7 @@ class Workflow:
             search_results = self.firecrawl.search_inventions(state.query, num_results=4)
             invention_names = [
                 result.get("metadata", {}).get("title", "Unknown")
-                for result in search_results.data
+                for result in search_results
             ]
         else:
             invention_names = extracted_inventions[:4]
@@ -100,7 +110,7 @@ class Workflow:
             search_results = self.firecrawl.search_inventions(name + " official site", num_results=1)
 
             if search_results:
-                result = search_results.data[0]
+                result = search_results[0]
                 url = result.get("url", "")
 
                 invention = InventionInfo(

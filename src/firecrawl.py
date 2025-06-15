@@ -27,7 +27,7 @@ class FirecrawlService:
             return []
 
 
-    def search_inventions(query: str, num_results: int = 5):
+    def search_inventions(self, query: str, num_results: int = 5):
         try:
             response = requests.post(
                 "https://google.serper.dev/search",
@@ -43,12 +43,14 @@ class FirecrawlService:
 
 
     def scrape_invention_page(self, url: str):
+        
         try:
             result = self.app.scrape_url(
                 url,
                 formats=["markdown"]
             )
             return result
+        
         except Exception as e:
-            print(f"[Firecrawl Scrape Error] {e}")
-            return None
+                print(f"[Firecrawl Scrape Error] {e}")
+                return None
