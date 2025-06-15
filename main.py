@@ -6,50 +6,44 @@ load_dotenv("local.env")
 
 def main():
     workflow = Workflow()
-    print("Developer Tools Research Agent")
+    print("Invention & IP Research Assistant")
 
     while True:
-        query = input("\n🔍 Developer Tools Query: ").strip()
+        query = input("\n Innovation Query: ").strip()
         if query.lower() in {"quit", "exit"}:
             break
-
+        
         if query:
             result = workflow.run(query)
             print(f"\n Results for: {query}")
             print("=" * 60)
 
-            for i, company in enumerate(result.companies, 1):
-                print(f"\n{i}. {company.name}")
-                print(f"    Website: {company.website}")
-                print(f"    Pricing: {company.pricing_model}")
-                print(f"    Open Source: {company.is_open_source}")
+        for i, invention in enumerate(result.inventions, 1):
+                print(f"\n{i}. {invention.name}")
+                print(f"    Website: {invention.website}")
+                print(f"    Domain: {invention.technical_domain}")
+                print(f"    Maturity: {invention.maturity_level}")
+                print(f"    Patent Activity: {invention.patent_activity}")
 
-                if company.tech_stack:
-                    print(f"  Tech Stack: {', '.join(company.tech_stack[:5])}")
+                if invention.novelty_features:
+                    print(f"   🔍 Novel Features: {', '.join(invention.novelty_features[:5])}")
 
-                if company.language_support:
-                    print(
-                        f"   Language Support: {', '.join(company.language_support[:5])}"
-                    )
+                if invention.implementation_details:
+                    print(f"   ⚙️ Implementation: {', '.join(invention.implementation_details[:5])}")
 
-                if company.api_available is not None:
-                    api_status = (
-                        " Available" if company.api_available else "❌ Not Available"
-                    )
-                    print(f"   🔌 API: {api_status}")
+                if invention.potential_applications:
+                    print(f"   🌍 Applications: {', '.join(invention.potential_applications[:4])}")
 
-                if company.integration_capabilities:
-                    print(
-                        f"   Integrations: {', '.join(company.integration_capabilities[:4])}"
-                    )
+                if invention.description and invention.description != "Failed":
+                    print(f"   Summary: {invention.description}")
 
-                if company.description and company.description != "Analysis failed":
-                    print(f"   Description: {company.description}")
+                if invention.ip_protection_notes:
+                    print(f"   IP Notes: {invention.ip_protection_notes}")
 
                 print()
 
-            if result.analysis:
-                print("Developer Recommendations: ")
+        if result.analysis:
+                print("Recommendations: ")
                 print("-" * 40)
                 print(result.analysis)
 
