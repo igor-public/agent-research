@@ -10,7 +10,7 @@ from .prompts import DeveloperToolsPrompts
 class Workflow:
     def __init__(self):
         self.firecrawl = FirecrawlService()
-        self.llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.1)
+        self.llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.4, max_tokens=1500)
         self.prompts = DeveloperToolsPrompts()
         self.workflow = self._build_workflow()
 
@@ -93,7 +93,7 @@ class Workflow:
         else:
             tool_names = extracted_tools[:4]
 
-        print(f"🔬 Researching specific tools: {', '.join(tool_names)}")
+        print(f" Researching specific tools: {', '.join(tool_names)}")
 
         companies = []
         for tool_name in tool_names:

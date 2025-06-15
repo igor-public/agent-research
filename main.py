@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 from src.workflow import Workflow
 
-load_dotenv()
+load_dotenv("local.env")
 
 
 def main():
@@ -19,17 +19,17 @@ def main():
             print("=" * 60)
 
             for i, company in enumerate(result.companies, 1):
-                print(f"\n{i}. 🏢 {company.name}")
+                print(f"\n{i}. {company.name}")
                 print(f"    Website: {company.website}")
                 print(f"    Pricing: {company.pricing_model}")
                 print(f"    Open Source: {company.is_open_source}")
 
                 if company.tech_stack:
-                    print(f"   🛠️  Tech Stack: {', '.join(company.tech_stack[:5])}")
+                    print(f"  Tech Stack: {', '.join(company.tech_stack[:5])}")
 
                 if company.language_support:
                     print(
-                        f"   💻 Language Support: {', '.join(company.language_support[:5])}"
+                        f"   Language Support: {', '.join(company.language_support[:5])}"
                     )
 
                 if company.api_available is not None:
@@ -40,7 +40,7 @@ def main():
 
                 if company.integration_capabilities:
                     print(
-                        f"   🔗 Integrations: {', '.join(company.integration_capabilities[:4])}"
+                        f"   Integrations: {', '.join(company.integration_capabilities[:4])}"
                     )
 
                 if company.description and company.description != "Analysis failed":

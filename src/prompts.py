@@ -3,8 +3,8 @@ class DeveloperToolsPrompts:
     """Collection of prompts for analyzing developer tools and technologies"""
 
     # Tool extraction prompts
-    TOOL_EXTRACTION_SYSTEM = """You are a tech researcher. Extract specific tool, library, platform, or service names from articles.
-                            Focus on actual products/tools that developers can use, not general concepts or features."""
+    TOOL_EXTRACTION_SYSTEM = """You are a tech researcher. Extract specific tool, products, services from articles.
+                            Focus on actual products/tools that costomers can use, not general concepts or ideas."""
 
     @staticmethod
     def tool_extraction_user(query: str, content: str) -> str:
