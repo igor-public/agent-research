@@ -2,7 +2,7 @@ import os
 from firecrawl import FirecrawlApp, ScrapeOptions
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv("local.env")
 
 
 class FirecrawlService:
@@ -12,10 +12,10 @@ class FirecrawlService:
             raise ValueError("Missing FIRECRAWL_API_KEY environment variable")
         self.app = FirecrawlApp(api_key=api_key)
 
-    def search_companies(self, query: str, num_results: int = 5):
+    def search_inventions(self, query: str, num_results: int = 5):
         try:
             result = self.app.search(
-                query=f"{query} company pricing",
+                query=f"{query} innovation patent technology",
                 limit=num_results,
                 scrape_options=ScrapeOptions(
                     formats=["markdown"]
@@ -23,10 +23,10 @@ class FirecrawlService:
             )
             return result
         except Exception as e:
-            print(e)
+            print(f"[Firecrawl Search Error] {e}")
             return []
 
-    def scrape_company_pages(self, url: str):
+    def scrape_invention_page(self, url: str):
         try:
             result = self.app.scrape_url(
                 url,
@@ -34,5 +34,5 @@ class FirecrawlService:
             )
             return result
         except Exception as e:
-            print(e)
+            print(f"[Firecrawl Scrape Error] {e}")
             return None
