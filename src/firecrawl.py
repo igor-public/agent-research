@@ -1,8 +1,17 @@
-import os, requests
+import os
+import requests
 from firecrawl import FirecrawlApp, ScrapeOptions
 from dotenv import load_dotenv
+from urllib.parse import urlparse
 
 load_dotenv("local.env")
+
+def is_valid_url(url: str) -> bool:
+    try:
+        result = urlparse(url)
+        return all([result.scheme in ("http", "https"), result.netloc])
+    except Exception:
+        return False
 
 
 class FirecrawlService:
@@ -27,7 +36,7 @@ class FirecrawlService:
             return []
 
 
-    def search_inventions(query: str, num_results: int = 5):
+    def search_inventions(self, query: str, num_results: int = 5):
         try:
             response = requests.post(
                 "https://google.serper.dev/search",
@@ -35,6 +44,19 @@ class FirecrawlService:
                 json={"q": f"{query} innovation patent technology"}
             )
             results = response.json().get("organic", [])[:num_results]
+            #print (f"[Serper Search] Found {len(results)} result(s) for query: {query}")
+            
+            """             for result in results:
+                if is_valid_url(result.get("link", "")):
+                    print(f"[Serper Search] the URL found: {result.get('link', '')}")
+ """            
+            for result in results:
+                if not is_valid_url(result.get("link", "")):
+                    print(f"[Serper Search] Invalid URL found: {result.get('link', '')}")
+                    results.remove(result)
+                    continue
+                print(f"[Serper Search] Valid URL found: {result.get('link', '')}")
+                       
             return results  # each result has title, url, snippet, etc.
         except Exception as e:
             print(f"[Serper Search Error] {e}")
@@ -43,12 +65,15 @@ class FirecrawlService:
 
 
     def scrape_invention_page(self, url: str):
+        
         try:
+            print(f"[Firecrawl Scrape] Scraping URL: --{url.strip()}--")
             result = self.app.scrape_url(
-                url,
+                url.strip(),
                 formats=["markdown"]
             )
             return result
+        
         except Exception as e:
-            print(f"[Firecrawl Scrape Error] {e}")
-            return None
+                print(f"[Firecrawl Scrape Error] {e}")
+                return None
