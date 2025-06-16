@@ -4,13 +4,15 @@ from firecrawl import FirecrawlApp, ScrapeOptions
 from dotenv import load_dotenv
 from urllib.parse import urlparse
 
+
 load_dotenv("local.env")
 
 def is_valid_url(url: str) -> bool:
     try:
-        result = urlparse(url)
+        result = urlparse(url.strip())
         return all([result.scheme in ("http", "https"), result.netloc])
     except Exception:
+        print(f"[URL Validation Error] Invalid URL: {url}")  
         return False
 
 
@@ -36,6 +38,11 @@ class FirecrawlService:
             return []
 
 
+    # Using Serper API for search
+    # This method searches for inventions using the Serper API and returns a list of results.
+    # Each result contains title, URL, snippet, etc.
+    # It also validates URLs and removes any invalid ones from the results.
+
     def search_inventions(self, query: str, num_results: int = 5):
         try:
             response = requests.post(
@@ -44,18 +51,20 @@ class FirecrawlService:
                 json={"q": f"{query} innovation patent technology"}
             )
             results = response.json().get("organic", [])[:num_results]
-            #print (f"[Serper Search] Found {len(results)} result(s) for query: {query}")
+            
+            print (f"[Serper Search] Found {len(results)} result(s) for query: {query}")
+            print(flush=True)
             
             """             for result in results:
                 if is_valid_url(result.get("link", "")):
                     print(f"[Serper Search] the URL found: {result.get('link', '')}")
  """            
             for result in results:
-                if not is_valid_url(result.get("link", "")):
-                    print(f"[Serper Search] Invalid URL found: {result.get('link', '')}")
+                if not is_valid_url(result.get("link", "").strip()):
+                    
                     results.remove(result)
                     continue
-                print(f"[Serper Search] Valid URL found: {result.get('link', '')}")
+                print(f"[Serper Search] Valid URL found: --{result.get("link", '')}--")
                        
             return results  # each result has title, url, snippet, etc.
         except Exception as e:
