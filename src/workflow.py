@@ -5,7 +5,15 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from .models import ResearchState, InventionInfo, InventionAnalysis
 from .firecrawl import FirecrawlService
 from .prompts import ResearcherInventionsPrompts
+from urllib.parse import urlparse
 
+
+def is_valid_url(url: str) -> bool:
+    try:
+        result = urlparse(url)
+        return all([result.scheme in ("http", "https"), result.netloc])
+    except Exception:
+        return False
 
 class Workflow:
     def __init__(self):
@@ -33,18 +41,17 @@ class Workflow:
 
         all_content = ""
         
+        print(f"🔍 Found {len(search_results)} valid URLs results")
+        
         for result in search_results:
             #url = result.get("url", "")
             
             url = result.get("link", "") 
         
-            print(f"🔗 Scraping URL: {url}")
-        
-            if not url or not url.startswith("http"):
-                print(f"[⚠️ Skipped] Invalid URL: {url}")
-                continue
-            
+            print(f"WF: Scraping URL:>> {url} <<")
+           
             scraped = self.firecrawl.scrape_invention_page(url)
+            
             if scraped:
                 all_content += scraped.markdown[:1500] + "\n\n"
 
@@ -106,13 +113,22 @@ class Workflow:
         print(f"Researching specific inventions: {', '.join(invention_names)}")
 
         inventions = []
+
+
+        # Iterate over the extracted invention names and search for their official sites
+        # If no names were extracted, use the original query
+
         for name in invention_names:
             search_results = self.firecrawl.search_inventions(name + " official site", num_results=1)
 
+            print(f"Searching for official site of: {name}")            
+
             if search_results:
                 result = search_results[0]
-                url = result.get("url", "")
-
+                url = result.get("link", "").strip() 
+                
+                print(f"Found a link to {name} - Scraping URL:>>--{url}--<<")
+                
                 invention = InventionInfo(
                     name=name,
                     description=result.get("markdown", ""),
@@ -127,6 +143,10 @@ class Workflow:
                     ip_protection_notes=None
                 )
 
+                if not is_valid_url(url):
+                    print(f"Invalid URL for {name}: {url}")
+                    continue
+                    
                 scraped = self.firecrawl.scrape_invention_page(url)
                 if scraped:
                     content = scraped.markdown
