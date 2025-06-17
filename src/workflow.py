@@ -3,7 +3,7 @@ from langgraph.graph import StateGraph, END
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 from .models import ResearchState, InventionInfo, InventionAnalysis
-from .firecrawl import FirecrawlService
+from .firecrawlService import FirecrawlService
 from .prompts import ResearcherInventionsPrompts
 from urllib.parse import urlparse
 
@@ -34,21 +34,22 @@ class Workflow:
         return graph.compile()
 
     def _extract_inventions_step(self, state: ResearchState) -> Dict[str, Any]:
-        print(f"🔍 Finding articles about: {state.query}")
+        
+        print(f"Searching for articles about: {state.query}")
 
-        article_query = f"{state.query} innovation patent technology"
-        search_results = self.firecrawl.search_inventions(article_query, num_results=3)
+        article_query = f"{state.query}  + innovation + patent + technology"
+        
+        search_results, links_found = self.firecrawl.search_links(article_query, num_results=3)
 
         all_content = ""
         
-        print(f"🔍 Found {len(search_results)} valid URLs results")
+        print(f"\n\n    Found {len(search_results)} valid URLs results")
         
-        for result in search_results:
-            #url = result.get("url", "")
-            
-            url = result.get("link", "") 
-        
-            print(f"WF: Scraping URL:>> {url} <<")
+        for link in links_found:
+                        
+            url = link
+                    
+            print(f"WF: Scraping URL:>>{url}<<")
            
             scraped = self.firecrawl.scrape_invention_page(url)
             
@@ -102,7 +103,7 @@ class Workflow:
 
         if not extracted_inventions:
             print("-XXX- No extracted inventions found, falling back to direct search")
-            search_results = self.firecrawl.search_inventions(state.query, num_results=4)
+            search_results, links_found = self.firecrawl.search_links(state.query, num_results=4)
             invention_names = [
                 result.get("metadata", {}).get("title", "Unknown")
                 for result in search_results
@@ -119,13 +120,13 @@ class Workflow:
         # If no names were extracted, use the original query
 
         for name in invention_names:
-            search_results = self.firecrawl.search_inventions(name + " official site", num_results=1)
+            search_results, links_found = self.firecrawl.search_links(name + " official site", num_results=1)
 
             print(f"Searching for official site of: {name}")            
 
             if search_results:
                 result = search_results[0]
-                url = result.get("link", "").strip() 
+                url = links_found[0] 
                 
                 print(f"Found a link to {name} - Scraping URL:>>--{url}--<<")
                 
@@ -148,6 +149,7 @@ class Workflow:
                     continue
                     
                 scraped = self.firecrawl.scrape_invention_page(url)
+                
                 if scraped:
                     content = scraped.markdown
                     analysis = self._analyze_invention_content(invention.name, content)

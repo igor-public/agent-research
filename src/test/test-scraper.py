@@ -1,7 +1,7 @@
 from firecrawl import FirecrawlApp
+from firecrawlService import firecrawlService as fc
 import os
 from dotenv import load_dotenv
-import json
 from urllib.parse import urlparse
 
 
@@ -33,20 +33,8 @@ def main():
     
     print("Scraper Test")
     
-    str = [" https://www.patsnap.com/resources/blog/power-batteries-electric-mobility-patents/ ",
-              "  https://www.patsnap.com/resources/blog/power-batteries-electric-mobility-patents/", "https://cadenzainnovation.com/",
-              "     https://technology.nasa.gov/patent/MSC-TOPS-40  ", "https://openinventionnetwork.com/  ", "https://south8.com/", "https://patents.google.com/patent/EP4227276A1/en"]
-    
-    
-    url = "https://patents.google.com/patent/EP4227276A1/en"
-    
-    
-    for url in str:
-        if not is_valid_url(url):
-            print(f"Invalid URL: {url}")
-            continue
-        
-        print(f"Valid URL: {url}")
+    fc.search_links("Electric Vehicle Battery Management Systems innovation patent technology", 5) 
+  
     
     
     """ scraper = Scraper()
